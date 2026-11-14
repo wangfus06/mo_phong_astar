@@ -4,9 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "npm run build:wasm && vite --port=3000 --host=0.0.0.0",
-    "build:wasm": "node scripts/build-wasm.mjs",
-    "build": "npm run build:wasm && vite build",
+    "dev": "vite --port=3000 --host=0.0.0.0",
+    "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"

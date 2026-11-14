@@ -5,7 +5,7 @@
 
 import React, { useCallback, useEffect, useState } from 'react';
 import { runAllTestCases, TestCaseResult } from '../../utils/testCases';
-import { loadPathfindingModule } from '../../algorithms/wasm';
+import { loadPythonModule } from '../../algorithms/python';
 import { PanelDialog } from './PanelDialog';
 import { TrafficGraph } from '../../types/graph';
 import { CheckCircle2, XCircle, ExternalLink, ShieldCheck, RefreshCw } from 'lucide-react';
@@ -31,15 +31,15 @@ export const TestCasesModal: React.FC<TestCasesModalProps> = ({
     setIsRunning(true);
     setRunError(null);
     try {
-      const module = await loadPathfindingModule();
+      const module = await loadPythonModule();
       const nextResults = await runAllTestCases(currentGraph, {
         solveAStar: (graph, startId, goalId) => module.solveAStar(graph, startId, goalId, 'euclidean', 1),
         solveBFS: (graph, startId, goalId) => module.solveBFS(graph, startId, goalId),
       });
       setResults(nextResults);
     } catch (error) {
-      console.error('Không thể chạy bộ kiểm thử C++ WebAssembly:', error);
-      setRunError('Không tải được module C++/WebAssembly để chạy kiểm thử.');
+      console.error('Không thể chạy bộ kiểm thử Python:', error);
+      setRunError('Không tải được Python runtime để chạy kiểm thử.');
     } finally {
       setIsRunning(false);
     }
@@ -71,7 +71,7 @@ export const TestCasesModal: React.FC<TestCasesModalProps> = ({
         <div className="sticky top-0 z-20 -mx-3 -mt-3 mb-3 flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-white/95 p-3 shadow-sm backdrop-blur sm:p-4">
           <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
             <div className="text-sm font-semibold text-slate-800">
-              {isRunning ? 'Đang chạy kiểm thử C++…' : <>Kết quả: <span className="font-mono text-emerald-700 text-base font-bold">{passCount}/{totalCount}</span> đạt ({totalCount ? Math.round((passCount / totalCount) * 100) : 0}%)</>}
+              {isRunning ? 'Đang chạy kiểm thử Python…' : <>Kết quả: <span className="font-mono text-emerald-700 text-base font-bold">{passCount}/{totalCount}</span> đạt ({totalCount ? Math.round((passCount / totalCount) * 100) : 0}%)</>}
             </div>
             <div className="hidden h-4 w-px bg-slate-300 sm:block" />
             <div className="text-xs text-slate-600">

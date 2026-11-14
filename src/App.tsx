@@ -21,7 +21,7 @@ import {
   getRiverChokepointPreset,
   generateRandomGraph,
 } from './utils/graphPresets';
-import { solveAStarCpp, solveBFSCpp } from './algorithms/wasm';
+import { solveAStarPython, solveBFSPython } from './algorithms/python';
 import { calculateDistance } from './utils/heuristics';
 import { TrafficCanvas } from './components/map/TrafficCanvas';
 import { ControlPanel } from './components/controls/ControlPanel';
@@ -75,7 +75,7 @@ export default function App() {
   // Status message
   const [statusNotification, setStatusNotification] = useState<string | null>(null);
 
-  // C++/WebAssembly initializes asynchronously, then calculates both routes off the JS algorithm path.
+  // Pyodide initializes asynchronously, then runs both Python search implementations.
   const [astarResult, setAstarResult] = useState<PathfindingResult | null>(null);
   const [bfsResult, setBfsResult] = useState<PathfindingResult | null>(null);
   useEffect(() => {
@@ -86,8 +86,8 @@ export default function App() {
     }
     let isCurrent = true;
     Promise.all([
-      solveAStarCpp(graph, startNodeId, goalNodeId, heuristic, heuristicMultiplier),
-      solveBFSCpp(graph, startNodeId, goalNodeId),
+      solveAStarPython(graph, startNodeId, goalNodeId, heuristic, heuristicMultiplier),
+      solveBFSPython(graph, startNodeId, goalNodeId),
     ]).then(([astar, bfs]) => {
       if (!isCurrent) return;
       setAstarResult(astar);
@@ -96,8 +96,8 @@ export default function App() {
       if (!isCurrent) return;
       setAstarResult(null);
       setBfsResult(null);
-      console.error('Không thể khởi tạo thuật toán C++ WebAssembly:', error);
-      setStatusNotification('Không tải được module C++/WebAssembly. Hãy tải lại trang hoặc kiểm tra bản deploy.');
+      console.error('Không thể khởi tạo Python WebAssembly:', error);
+      setStatusNotification('Không tải được Python runtime. Hãy kiểm tra kết nối mạng rồi tải lại trang.');
     });
     return () => { isCurrent = false; };
   }, [graph, startNodeId, goalNodeId, heuristic, heuristicMultiplier]);
@@ -454,8 +454,6 @@ export default function App() {
     if (panel === 'playback') setIsPlaybackOpen(true);
     if (panel === 'results') setIsResultsOpen(true);
     if (panel === 'trace') setIsTraceOpen(true);
-    if (panel === 'tests') setIsTestCasesModalOpen(true);
-    if (panel === 'map') setIsMapSettingsModalOpen(true);
   };
 
   return (

@@ -137,7 +137,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({
       <div className="border-b border-slate-200 pb-3">
         <h2 className={`text-sm font-bold ${embedded ? 'text-slate-900' : 'text-white'}`}>Thiết lập hành trình</h2>
         <p className={`mt-1 text-xs ${embedded ? 'text-slate-500' : 'text-slate-400'}`}>
-          Chọn bản đồ, điểm A/B và thuật toán A*/BFS đang chạy bằng C++ qua WebAssembly.
+          Chọn bản đồ, điểm A/B và thuật toán A*/BFS Python chạy trong trình duyệt.
         </p>
       </div>
       {/* ROW 1: Map Presets & Global Actions */}
