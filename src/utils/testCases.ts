@@ -3,9 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { solveAStar } from '../algorithms/astar';
-import { solveBFS } from '../algorithms/bfs';
-import { TrafficEdge, TrafficGraph, TrafficNode } from '../types/graph';
+import { PathfindingResult, TrafficEdge, TrafficGraph, TrafficNode } from '../types/graph';
 import { generateRandomGraph, getHanoiPreset } from './graphPresets';
 
 export interface TestCaseResult {
@@ -26,13 +24,18 @@ export interface TestCaseResult {
   goalId?: string;
 }
 
-export function runAllTestCases(currentGraph: TrafficGraph): TestCaseResult[] {
+export interface TestCaseSolver {
+  solveAStar: (graph: TrafficGraph, startId: string, goalId: string) => PathfindingResult | Promise<PathfindingResult>;
+  solveBFS: (graph: TrafficGraph, startId: string, goalId: string) => PathfindingResult | Promise<PathfindingResult>;
+}
+
+export async function runAllTestCases(currentGraph: TrafficGraph, solver: TestCaseSolver): Promise<TestCaseResult[]> {
   const results: TestCaseResult[] = [];
 
   // TC01: Tìm đường giữa hai nút có kết nối
   {
     const hanoi = getHanoiPreset();
-    const res = solveAStar(hanoi, 'N1', 'N4'); // Cầu Giấy -> Hồ Gươm
+    const res = await solver.solveAStar(hanoi, 'N1', 'N4'); // Cầu Giấy -> Hồ Gươm
     const passed = res.success && res.path.length > 1;
     results.push({
       id: 'TC01',
@@ -65,7 +68,7 @@ export function runAllTestCases(currentGraph: TrafficGraph): TestCaseResult[] {
       width: 500,
       height: 350,
     };
-    const res = solveAStar(isoGraph, 'A', 'C');
+    const res = await solver.solveAStar(isoGraph, 'A', 'C');
     const passed = !res.success && res.path.length === 0;
     results.push({
       id: 'TC02',
@@ -100,7 +103,7 @@ export function runAllTestCases(currentGraph: TrafficGraph): TestCaseResult[] {
       width: 550,
       height: 380,
     };
-    const res = solveAStar(altGraph, 'S', 'G');
+    const res = await solver.solveAStar(altGraph, 'S', 'G');
     const avoidedObstacle = !res.pathEdges.includes('e-mg');
     const passed = res.success && avoidedObstacle && res.path.includes('D');
     results.push({
@@ -132,7 +135,7 @@ export function runAllTestCases(currentGraph: TrafficGraph): TestCaseResult[] {
       width: 450,
       height: 300,
     };
-    const res = solveAStar(blockedAll, 'X', 'Y');
+    const res = await solver.solveAStar(blockedAll, 'X', 'Y');
     const passed = !res.success && res.path.length === 0;
     results.push({
       id: 'TC04',
@@ -149,7 +152,7 @@ export function runAllTestCases(currentGraph: TrafficGraph): TestCaseResult[] {
 
   // TC05: Điểm bắt đầu trùng điểm đích
   {
-    const res = solveAStar(currentGraph, currentGraph.nodes[0]?.id || 'N1', currentGraph.nodes[0]?.id || 'N1');
+    const res = await solver.solveAStar(currentGraph, currentGraph.nodes[0]?.id || 'N1', currentGraph.nodes[0]?.id || 'N1');
     const passed = res.success && res.totalCost === 0 && res.path.length === 1;
     results.push({
       id: 'TC05',
@@ -212,7 +215,7 @@ export function runAllTestCases(currentGraph: TrafficGraph): TestCaseResult[] {
   // TC09: Chạy thuật toán A*
   {
     const hanoi = getHanoiPreset();
-    const res = solveAStar(hanoi, 'N1', 'N14'); // Cầu Giấy -> Bến xe Nước Ngầm
+    const res = await solver.solveAStar(hanoi, 'N1', 'N14'); // Cầu Giấy -> Bến xe Nước Ngầm
     const passed = res.success && res.steps.length > 0;
     results.push({
       id: 'TC09',
@@ -233,7 +236,7 @@ export function runAllTestCases(currentGraph: TrafficGraph): TestCaseResult[] {
   // TC10: Chạy thuật toán BFS
   {
     const hanoi = getHanoiPreset();
-    const res = solveBFS(hanoi, 'N1', 'N14');
+    const res = await solver.solveBFS(hanoi, 'N1', 'N14');
     const passed = res.success && res.steps.length > 0;
     results.push({
       id: 'TC10',
@@ -254,8 +257,8 @@ export function runAllTestCases(currentGraph: TrafficGraph): TestCaseResult[] {
   // TC11: So sánh A* và BFS
   {
     const hanoi = getHanoiPreset();
-    const resAStar = solveAStar(hanoi, 'N1', 'N8');
-    const resBFS = solveBFS(hanoi, 'N1', 'N8');
+    const resAStar = await solver.solveAStar(hanoi, 'N1', 'N8');
+    const resBFS = await solver.solveBFS(hanoi, 'N1', 'N8');
     const passed = resAStar.success && resBFS.success;
     const efficiencyDiff = resBFS.visitedNodeCount - resAStar.visitedNodeCount;
     results.push({
@@ -275,7 +278,7 @@ export function runAllTestCases(currentGraph: TrafficGraph): TestCaseResult[] {
 
   // TC12: Chọn điểm không hợp lệ
   {
-    const res = solveAStar(currentGraph, 'INVALID_999', 'INVALID_888');
+    const res = await solver.solveAStar(currentGraph, 'INVALID_999', 'INVALID_888');
     const passed = !res.success && res.message.includes('không hợp lệ');
     results.push({
       id: 'TC12',

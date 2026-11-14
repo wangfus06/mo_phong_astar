@@ -21,8 +21,7 @@ import {
   getRiverChokepointPreset,
   generateRandomGraph,
 } from './utils/graphPresets';
-import { solveAStar } from './algorithms/astar';
-import { solveBFS } from './algorithms/bfs';
+import { solveAStarCpp, solveBFSCpp } from './algorithms/wasm';
 import { calculateDistance } from './utils/heuristics';
 import { TrafficCanvas } from './components/map/TrafficCanvas';
 import { ControlPanel } from './components/controls/ControlPanel';
@@ -76,16 +75,32 @@ export default function App() {
   // Status message
   const [statusNotification, setStatusNotification] = useState<string | null>(null);
 
-  // Re-run algorithms when graph, start, goal, or heuristic change
-  const astarResult: PathfindingResult | null = useMemo(() => {
-    if (!startNodeId || !goalNodeId) return null;
-    return solveAStar(graph, startNodeId, goalNodeId, heuristic, heuristicMultiplier);
+  // C++/WebAssembly initializes asynchronously, then calculates both routes off the JS algorithm path.
+  const [astarResult, setAstarResult] = useState<PathfindingResult | null>(null);
+  const [bfsResult, setBfsResult] = useState<PathfindingResult | null>(null);
+  useEffect(() => {
+    if (!startNodeId || !goalNodeId) {
+      setAstarResult(null);
+      setBfsResult(null);
+      return;
+    }
+    let isCurrent = true;
+    Promise.all([
+      solveAStarCpp(graph, startNodeId, goalNodeId, heuristic, heuristicMultiplier),
+      solveBFSCpp(graph, startNodeId, goalNodeId),
+    ]).then(([astar, bfs]) => {
+      if (!isCurrent) return;
+      setAstarResult(astar);
+      setBfsResult(bfs);
+    }).catch(error => {
+      if (!isCurrent) return;
+      setAstarResult(null);
+      setBfsResult(null);
+      console.error('Không thể khởi tạo thuật toán C++ WebAssembly:', error);
+      setStatusNotification('Không tải được module C++/WebAssembly. Hãy tải lại trang hoặc kiểm tra bản deploy.');
+    });
+    return () => { isCurrent = false; };
   }, [graph, startNodeId, goalNodeId, heuristic, heuristicMultiplier]);
-
-  const bfsResult: PathfindingResult | null = useMemo(() => {
-    if (!startNodeId || !goalNodeId) return null;
-    return solveBFS(graph, startNodeId, goalNodeId);
-  }, [graph, startNodeId, goalNodeId]);
 
   // Determine active result based on algorithm selection
   const activeResult: PathfindingResult | null = useMemo(() => {
