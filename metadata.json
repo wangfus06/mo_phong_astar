@@ -1,0 +1,6 @@
+{
+  "name": "Mô phỏng Tìm đường A* và BFS Giao thông",
+  "description": "Ứng dụng trực quan hóa tìm đường đi trên bản đồ mạng lưới giao thông bằng thuật toán A* và so sánh với BFS theo đặc tả SRS.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

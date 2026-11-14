@@ -1,0 +1,46 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+	font-family: 'DM Sans', sans-serif;
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	color-scheme: light;
+}
+
+body {
+	min-width: 320px;
+	margin: 0;
+}
+
+h1,
+h2,
+h3 {
+	font-family: 'Space Grotesk', 'DM Sans', sans-serif;
+}
+
+:focus-visible {
+	outline: 2px solid #0284c7;
+	outline-offset: 2px;
+}
+
+/* Keep the existing component palette, but map its slate surfaces to a light UI. */
+.bg-slate-950 { background-color: #f8fafc !important; }
+.bg-slate-900 { background-color: #ffffff !important; }
+.bg-slate-800 { background-color: #f1f5f9 !important; }
+.bg-slate-700 { background-color: #e2e8f0 !important; }
+[class~="bg-slate-950/80"], [class~="bg-slate-950/60"], [class~="bg-slate-950/40"] { background-color: rgb(248 250 252 / 0.94) !important; }
+[class~="bg-slate-900/95"], [class~="bg-slate-900/90"], [class~="bg-slate-900/80"] { background-color: rgb(255 255 255 / 0.94) !important; }
+.border-slate-800, .border-slate-700 { border-color: #dbe3ee !important; }
+.text-slate-100 { color: #0f172a !important; }
+.text-slate-200 { color: #1e293b !important; }
+.text-slate-300 { color: #334155 !important; }
+.text-slate-400 { color: #64748b !important; }
+.text-slate-500 { color: #64748b !important; }
+.text-sky-300, .text-sky-400 { color: #0369a1 !important; }
+.text-indigo-300, .text-indigo-400 { color: #4338ca !important; }
+.text-emerald-300, .text-emerald-400 { color: #047857 !important; }
+.text-amber-300, .text-amber-400 { color: #b45309 !important; }
+.text-red-400, .text-rose-400 { color: #be123c !important; }
+.text-white { color: #0f172a; }
+button.bg-sky-600, button.bg-sky-700, button.bg-indigo-600, button.bg-emerald-600, button.bg-amber-500, button.bg-amber-600 { color: #ffffff; }
